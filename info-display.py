@@ -24,4 +24,14 @@ message = "first\nmessage"
 
 lcd.message(message)
 
+time.sleep(5)
+
+lcd.clear()
+
 message = "second\nmessage"
+
+time.sleep(5)
+
+lcd.clear()
+
+lcd.message("third\nmessage")

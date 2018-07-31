@@ -4,12 +4,14 @@ import Adafruit_CharLCD as LCD
 import json
 import requests
 
-# translink API info
-api_key = "fQkcNy0xwMb4e3uWUwlD"
-api_url_base = "http://api.translink.ca/rttapi/v1"
 
 # desired bus stop
-stop_no = 51204
+stop_no = "51204"
+
+# translink API info
+api_key = "fQkcNy0xwMb4e3uWUwlD"
+request_url_base = "http://api.translink.ca/rttiapi/v1/stops/" + stop_no  + "/estimates?apikey=" + api_key
+headers = {"accept":"application/json"}
 
 # GPIO pin configuration on Raspberry Pi Zero W
 lcd_rs = 26
@@ -27,20 +29,39 @@ lcd_rows = 2
 # initialize screen
 lcd = LCD.Adafruit_CharLCD(lcd_rs, lcd_en, lcd_d4, lcd_d5, lcd_d6, lcd_d7, lcd_columns, lcd_rows, lcd_backlight)
 
+while True:
+# get bus stop info
+	r = requests.get(request_url_base, headers=headers)
+	r.json()
+	loaded_info = json.loads(r.text)
+#for key,val in loaded_info[0].items():
+#	print("{} = {}".format(key, val))
 
+	route_no = loaded_info[0]["RouteNo"]
+	schedules = loaded_info[0]["Schedules"]
 
-message = "first\nmessage"
+# takes first schedule in list
+	upcoming_schedule = schedules[0]
 
-lcd.message(message)
+	destination = upcoming_schedule["Destination"]
 
-time.sleep(5)
+	leave_time = upcoming_schedule["ExpectedLeaveTime"]
+	countdown = upcoming_schedule["ExpectedCountdown"]
 
-lcd.clear()
+	firstline = route_no + " to " + destination
+	secondline = leave_time.split(" ")[0] + " in " + str(countdown) + " min"
 
-message = "second\nmessage"
+	lcd.message(firstline + "\n" + secondline)
 
-time.sleep(5)
+	time.sleep(60)
 
-lcd.clear()
-
-lcd.message("third\nmessage")
+#TODO: Fix bugs with negative time 
+#TODO: add physical buttons to refresh/show different info, add support for stops with multiple bus routes
+#message = "first\nmessage"
+#lcd.message(message)
+#time.sleep(5)
+#lcd.clear()
+#message = "second\nmessage"
+#time.sleep(5)
+#lcd.clear()
+#lcd.message("third\nmessage")

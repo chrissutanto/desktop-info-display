@@ -3,7 +3,12 @@ import time
 import Adafruit_CharLCD as LCD
 import json
 import requests
+import RPi.GPIO as GPIO
 
+# configure GPIO
+switch_pin = 10
+# GPIO.setmode(GPIO.BOARD) Adafruit library sets mode to BCM
+GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #set up switch to toggle data refresh and backlight
 
 # desired bus stop
 stop_no = "51204"
@@ -20,7 +25,7 @@ lcd_d4 = 13
 lcd_d5 = 6
 lcd_d6 = 5
 lcd_d7 = 11
-lcd_backlight = 4 # backlight pin not used, replaced with toggle switch
+lcd_backlight = 9 # backlight pin not used, replaced with toggle switch
 
 # configure screen
 lcd_columns = 16
@@ -32,15 +37,12 @@ lcd = LCD.Adafruit_CharLCD(lcd_rs, lcd_en, lcd_d4, lcd_d5, lcd_d6, lcd_d7, lcd_c
 while True:
 # get bus stop info
 	r = requests.get(request_url_base, headers=headers)
-	r.json()
 	loaded_info = json.loads(r.text)
-#for key,val in loaded_info[0].items():
-#	print("{} = {}".format(key, val))
 
 	route_no = loaded_info[0]["RouteNo"]
 	schedules = loaded_info[0]["Schedules"]
 
-# takes first schedule in list
+	# takes first schedule in list
 	upcoming_schedule = schedules[0]
 
 	destination = upcoming_schedule["Destination"]
@@ -50,11 +52,12 @@ while True:
 
 	firstline = route_no + " to " + destination
 	secondline = leave_time.split(" ")[0] + " in " + str(countdown) + " min"
-
+	lcd.clear()
 	lcd.message(firstline + "\n" + secondline)
 
 	time.sleep(60)
 
+#TODO: Add toggle switch to turn on backlight and turn on refreshing 
 #TODO: Fix bugs with negative time 
 #TODO: add physical buttons to refresh/show different info, add support for stops with multiple bus routes
 #message = "first\nmessage"

@@ -73,16 +73,3 @@ try:
 			#TODO: toggle backlight on
 except KeyboardInterrupt:
 	GPIO.cleanup()
-
-
-#TODO: Add toggle switch to turn on backlight and turn on refreshing
-#TODO: Fix bugs with negative time
-#TODO: add physical buttons to refresh/show different info, add support for stops with multiple bus routes
-#message = "first\nmessage"
-#lcd.message(message)
-#time.sleep(5)
-#lcd.clear()
-#message = "second\nmessage"
-#time.sleep(5)
-#lcd.clear()
-#lcd.message("third\nmessage")

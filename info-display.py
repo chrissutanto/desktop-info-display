@@ -63,8 +63,10 @@ def printData(to_print):
 try:
 	while True:
 		printData(getData())
-		if(GPIO.input(switch_pin) == False): # if toggle switch is in "on" pos
-			time.sleep(60)
+		if(GPIO.input(switch_pin) == False): # if toggle switch is in "on" pos, despite "False"
+			for _ in range(120): # check if switch is turned off every 0.5 seconds for 1 minute UNTESTED
+				if(GPIO.input(switch_pin) == False):
+					time.sleep(0.5)
 		else:
 			lcd.clear()
 			lcd.message("not refreshing")

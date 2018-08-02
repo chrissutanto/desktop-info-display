@@ -35,12 +35,7 @@ lcd_rows = 2
 lcd = LCD.Adafruit_CharLCD(lcd_rs, lcd_en, lcd_d4, lcd_d5, lcd_d6, lcd_d7, lcd_columns, lcd_rows, lcd_backlight)
 
 # function to request data, returns string of info to print
-
-
-# function to update screen with data
-
-while True:
-	# get bus stop info
+def getData():
 	r = requests.get(request_url_base, headers=headers)
 	loaded_info = json.loads(r.text)
 
@@ -57,13 +52,26 @@ while True:
 
 	firstline = route_no + " to " + destination
 	secondline = leave_time.split(" ")[0] + " in " + str(countdown) + " min"
+	return firstline + "\n" + secondline
+
+# function to update screen with data
+def printData(to_print):
 	lcd.clear()
-	lcd.message(firstline + "\n" + secondline)
+	lcd.message(to_print)
 
-	time.sleep(60)
+# main loop
+while True:
+	printData(getData())
+	if(GPIO.input(10)): # if toggle switch is in "on" position
+		time.sleep(60)
+	else:
+		lcd.message("waiting for switch")
+		GPIO.wait_for_edge(10, GPIO.FALLING)
 
-#TODO: Add toggle switch to turn on backlight and turn on refreshing 
-#TODO: Fix bugs with negative time 
+
+
+#TODO: Add toggle switch to turn on backlight and turn on refreshing
+#TODO: Fix bugs with negative time
 #TODO: add physical buttons to refresh/show different info, add support for stops with multiple bus routes
 #message = "first\nmessage"
 #lcd.message(message)

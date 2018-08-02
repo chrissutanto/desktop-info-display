@@ -6,9 +6,9 @@ import requests
 import RPi.GPIO as GPIO
 
 # configure GPIO
-switch_pin = 10
+switch_pin = 21
 # GPIO.setmode(GPIO.BOARD) Adafruit library sets mode to BCM
-GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #set up switch to toggle data refresh and backlight
+GPIO.setup(switch_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP) #set up switch to toggle data refresh and backlight
 
 # desired bus stop
 stop_no = "51204"
@@ -51,7 +51,7 @@ def getData():
 	countdown = upcoming_schedule["ExpectedCountdown"]
 
 	firstline = route_no + " to " + destination
-	secondline = leave_time.split(" ")[0] + " in " + str(countdown) + " min"
+	secondline = leave_time.split(" ")[0] + " in " + str(countdown) + "min"
 	return firstline + "\n" + secondline
 
 # function to update screen with data
@@ -60,14 +60,19 @@ def printData(to_print):
 	lcd.message(to_print)
 
 # main loop
-while True:
-	printData(getData())
-	if(GPIO.input(10)): # if toggle switch is in "on" position
-		time.sleep(60)
-	else:
-		lcd.message("waiting for switch")
-		GPIO.wait_for_edge(10, GPIO.FALLING)
-
+try:
+	while True:
+		printData(getData())
+		if(GPIO.input(switch_pin) == False): # if toggle switch is in "on" pos
+			time.sleep(60)
+		else:
+			lcd.clear()
+			lcd.message("not refreshing")
+			#TODO: add backlight pin and turn off backlight here
+			GPIO.wait_for_edge(switch_pin, GPIO.FALLING)
+			#TODO: toggle backlight on
+except KeyboardInterrupt:
+	GPIO.cleanup()
 
 
 #TODO: Add toggle switch to turn on backlight and turn on refreshing

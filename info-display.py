@@ -34,8 +34,13 @@ lcd_rows = 2
 # initialize screen
 lcd = LCD.Adafruit_CharLCD(lcd_rs, lcd_en, lcd_d4, lcd_d5, lcd_d6, lcd_d7, lcd_columns, lcd_rows, lcd_backlight)
 
+# function to request data, returns string of info to print
+
+
+# function to update screen with data
+
 while True:
-# get bus stop info
+	# get bus stop info
 	r = requests.get(request_url_base, headers=headers)
 	loaded_info = json.loads(r.text)
 

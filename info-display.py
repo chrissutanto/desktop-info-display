@@ -7,8 +7,10 @@ import RPi.GPIO as GPIO
 
 # configure GPIO
 switch_pin = 21
+backlight_pin = 20
 # GPIO.setmode(GPIO.BOARD) Adafruit library sets mode to BCM
 GPIO.setup(switch_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP) #set up switch to toggle data refresh and backlight
+GPIO.setup(backlight_pin, GPIO.OUT) #pin to control backlight
 
 # desired bus stop
 stop_no = "51204"
@@ -62,6 +64,7 @@ def printData(to_print):
 # main loop
 try:
 	while True:
+		GPIO.output(backlight_pin, 1)
 		printData(getData())
 		if(GPIO.input(switch_pin) == False): # if toggle switch is in "on" pos, despite "False"
 			for _ in range(120): # check if switch is turned off every 0.5 seconds for 1 minute UNTESTED
@@ -70,8 +73,8 @@ try:
 		else:
 			lcd.clear()
 			lcd.message("not refreshing")
-			#TODO: add backlight pin and turn off backlight here
+			time.sleep(1)
+			GPIO.output(backlight_pin, 0)
 			GPIO.wait_for_edge(switch_pin, GPIO.FALLING)
-			#TODO: toggle backlight on
 except KeyboardInterrupt:
 	GPIO.cleanup()
